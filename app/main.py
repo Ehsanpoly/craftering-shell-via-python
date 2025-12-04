@@ -30,7 +30,7 @@ def main():
             elif parts[1] == dir(__builtins__):
                 print(f"type {command} is a shell buitlin")  
             else:
-                print("invalid_command: not found")      
+                print(f"{parts[1]}: not found")      
 
 
         print(f"{command}: command not found")
