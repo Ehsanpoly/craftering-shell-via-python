@@ -1,6 +1,37 @@
 import sys
+import shutil
 
 
+BUILTINs = {
+    "exit": buitlin_exit,
+    "echo": builtin_echo,
+    "type": builtin_type,
+}
+
+
+def builtin_exit(args):
+    sys.exit(0)
+
+def builtin_echo(args):
+    print(" ".join)
+
+def builtin_type(args):
+    if not args:
+        print("")
+        return        
+
+    target = args[0]
+
+    if target in BUILTINs:
+        print(f"{target} is in builtin\n")
+        return
+    
+    path = shutil.which(target)
+    if path:
+        print(f"{target} is {path} ")
+        return
+
+    print(f"{target}: not found")    
 
 
 def main():
@@ -9,29 +40,23 @@ def main():
         
         sys.stdout.write("$ ")
         command = input().strip()
-        # pass
-        if command == "exit":
-            sys.exit(0)
-        
-        if command.startswith("echo"):
-            parts = command.split(" ", 1)
-
-            if len(parts) == 1:
-                print("")
-            else:
-                print(parts[1])
+ 
+        if not command:
             continue
+
+        parts = command.split()
+        cmd = parts[0]
+        args = parts[1:]
+
+        if cmd in BUILTINs:
+            BUILTINs[cmd](args)
+            continue
+
+        path = shutil.which(cmd)
         
-        if command.startswith("type"):
-            parts = command.split(" ", 1)
-
-            if len(parts) == 1:
-                print("")
-            elif parts[1] == dir(__builtins__):
-                print(f"type {command} is a shell buitlin")  
-            else:
-                print(f"{parts[1]}: not found")      
-
+        if path:
+            print(f"Running external:{path}")
+            continue
 
         print(f"{command}: command not found")
 
