@@ -2,18 +2,12 @@ import sys
 import shutil
 
 
-BUILTINs = {
-    "exit": buitlin_exit,
-    "echo": builtin_echo,
-    "type": builtin_type,
-}
-
 
 def builtin_exit(args):
     sys.exit(0)
 
 def builtin_echo(args):
-    print(" ".join)
+    print(" ".join(args))
 
 def builtin_type(args):
     if not args:
@@ -32,6 +26,15 @@ def builtin_type(args):
         return
 
     print(f"{target}: not found")    
+
+
+
+BUILTINs = {
+    "exit": builtin_exit,
+    "echo": builtin_echo,
+    "type": builtin_type,
+}
+
 
 
 def main():
