@@ -11,9 +11,10 @@ def main():
         command = input()
         print(f"{command}: command not found")
         # pass
+        if command == "exit":
+            sys.exit(0)
+
     
 
 if __name__ == "__main__":
     main()
-
-sys.exit(1)
