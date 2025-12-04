@@ -12,7 +12,10 @@ def main():
         # pass
         if command == "exit":
             sys.exit(0)
-        
+        if command == "echo":
+            print(input())
+
+            
         print(f"{command}: command not found")
 
     
