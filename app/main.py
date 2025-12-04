@@ -9,10 +9,11 @@ def main():
         
         sys.stdout.write("$ ")
         command = input()
-        print(f"{command}: command not found")
         # pass
         if command == "exit":
             sys.exit(0)
+        
+        print(f"{command}: command not found")
 
     
 
