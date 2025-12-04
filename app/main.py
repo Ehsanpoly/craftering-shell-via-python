@@ -13,7 +13,7 @@ def main():
         if command == "exit":
             sys.exit(0)
         if command.startswith("echo"):
-            parts = command.split(" ", 1)
+            parts = command.split("", 1)
 
             if len(parts) == 1:
                 print("")
