@@ -17,7 +17,7 @@ def builtin_type(args):
     target = args[0]
 
     if target in BUILTINs:
-        print(f"{target} is a shell builtin\n")
+        print(f"{target} is a shell builtin")
         return
     
     path = shutil.which(target)
