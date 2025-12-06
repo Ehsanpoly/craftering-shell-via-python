@@ -9,7 +9,7 @@ def builtin_exit(args):
 
 def builtin_pwd(arg):
     print(sys.path[0])    
-
+    
 def builtin_echo(args):
     print(" ".join(args))
 
