@@ -60,7 +60,7 @@ def main():
         
         if path:
             # print(f"Running external:{path}")
-            subprocess.run([path] + args)
+            subprocess.run([cmd] + args, executable = path)
             continue
 
         print(f"{command}: command not found")
