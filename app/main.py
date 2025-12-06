@@ -7,6 +7,9 @@ import subprocess
 def builtin_exit(args):
     sys.exit(0)
 
+def builtin_pwd(arg):
+    print(sys.path[0])    
+
 def builtin_echo(args):
     print(" ".join(args))
 
@@ -34,6 +37,7 @@ BUILTINs = {
     "exit": builtin_exit,
     "echo": builtin_echo,
     "type": builtin_type,
+    "pwd": builtin_pwd,
 }
 
 
