@@ -1,5 +1,6 @@
 import sys
 import shutil
+import subprocess
 
 
 
@@ -58,7 +59,8 @@ def main():
         path = shutil.which(cmd)
         
         if path:
-            print(f"Running external:{path}")
+            # print(f"Running external:{path}")
+            subprocess.run([path] + args)
             continue
 
         print(f"{command}: command not found")
