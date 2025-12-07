@@ -1,15 +1,41 @@
 import sys
 import shutil
 import subprocess
+import os
 
 
 
 def builtin_exit(args):
     sys.exit(0)
 
-def builtin_pwd(arg):
-    print(sys.path[0])    
+
+def builtin_cd(args):
+    if not args:
+        print("")
+        return
     
+    route = args[0]
+    
+    if not route.startswith("/"):
+        print(f"cd :{route} is not found")
+        return
+    try:
+        os.chdir(route) 
+
+    except FileNotFoundError:
+        print(f"cd : {route} No such file or directory found")
+
+    except NotADirectoryError:
+        print(f"cd : {route} No a directory")
+
+    except PermissionError:
+        print(f"cd : {route} Permission denied")    
+
+def builtin_pwd(args):
+    if not args:
+        print(os.getcwd())
+        return    
+
 def builtin_echo(args):
     print(" ".join(args))
 
@@ -38,6 +64,7 @@ BUILTINs = {
     "echo": builtin_echo,
     "type": builtin_type,
     "pwd": builtin_pwd,
+    "cd": builtin_cd,
 }
 
 
