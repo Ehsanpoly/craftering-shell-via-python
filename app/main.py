@@ -13,9 +13,10 @@ def builtin_cd(args):
     
     route = args[0]
     
-    # if not route.startswith("/"):
-    #     print(f"cd: {route}: No such file or directory")
-    #     return
+    if route.startswith("~"):
+        print(os.getenv('HOME'))
+        return
+    
     try:
         os.chdir(route) 
 
