@@ -3,11 +3,8 @@ import shutil
 import subprocess
 import os
 
-
-
 def builtin_exit(args):
     sys.exit(0)
-
 
 def builtin_cd(args):
     if not args:
@@ -57,8 +54,6 @@ def builtin_type(args):
 
     print(f"{target}: not found")    
 
-
-
 BUILTINs = {
     "exit": builtin_exit,
     "echo": builtin_echo,
@@ -66,8 +61,6 @@ BUILTINs = {
     "pwd": builtin_pwd,
     "cd": builtin_cd,
 }
-
-
 
 def main():
     while True:
@@ -97,6 +90,5 @@ def main():
         print(f"{command}: command not found")
 
     
-
 if __name__ == "__main__":
     main()
