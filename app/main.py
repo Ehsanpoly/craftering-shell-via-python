@@ -11,23 +11,25 @@ def builtin_cd(args):
         print("")
         return
     
-    route = args[0]
-    
-    if route.startswith("~"):
-        print(os.getenv('HOME'))
-        return
-    
+    # if not args:
+    #     path = os.path.expanduser("~")
+
+    else:
+        path = args[0]
+        path = os.path.expanduser(path)    
+
+    # route = args[0]
     try:
-        os.chdir(route) 
+        os.chdir(path) 
 
     except FileNotFoundError:
-        print(f"cd: {route}: No such file or directory")
+        print(f"cd: {args[0]}: No such file or directory")
 
     except NotADirectoryError:
-        print(f"cd: {route}: No a directory")
+        print(f"cd: {args[0]}: No a directory")
 
     except PermissionError:
-        print(f"cd: {route}: Permission denied")    
+        print(f"cd: {args[0]}: Permission denied")    
 
 def builtin_pwd(args):
     if not args:
