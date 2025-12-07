@@ -17,19 +17,19 @@ def builtin_cd(args):
     route = args[0]
     
     if not route.startswith("/"):
-        print(f"cd: {route} is not found")
+        print(f"cd: {route}: is not found")
         return
     try:
         os.chdir(route) 
 
     except FileNotFoundError:
-        print(f"cd: {route} No such file or directory")
+        print(f"cd: {route}: No such file or directory")
 
     except NotADirectoryError:
-        print(f"cd: {route} No a directory")
+        print(f"cd: {route}: No a directory")
 
     except PermissionError:
-        print(f"cd: {route} Permission denied")    
+        print(f"cd: {route}: Permission denied")    
 
 def builtin_pwd(args):
     if not args:
