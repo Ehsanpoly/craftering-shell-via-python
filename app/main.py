@@ -66,6 +66,7 @@ BUILTINs = {
 }
 
 def main():
+<<<<<<< HEAD
     while True:
         sys.stdout.write("$ ")
 <<<<<<< HEAD
@@ -121,6 +122,11 @@ def main():
         if command == "exit":
             sys.exit(0)
         print(f"{command}: command not found")
+=======
+    sys.stdout.write("$ ")
+    command = input()
+    print(f"{command}: command not found")
+>>>>>>> origin/autofix-beea1e22-aa50-49fc-bab5-65a9d078c494
 
 
 >>>>>>> origin/autofix-34b55e0e-d9c5-4d57-8cfb-b150ff721a02
