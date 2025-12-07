@@ -69,10 +69,18 @@ def main():
     while True:
         sys.stdout.write("$ ")
 <<<<<<< HEAD
+<<<<<<< HEAD
         command = input().strip()
  
         if not command:
             continue
+=======
+        command = input()
+        if command == "exit":
+            break
+        print(f"{command}: command not found")
+    sys.exit()
+>>>>>>> origin/autofix-d4d6c55a-3fe1-4982-a92f-b7910dbb042a
 
         parts = command.split()
         cmd = parts[0]
