@@ -23,7 +23,7 @@ def builtin_cd(args):
         os.chdir(route) 
 
     except FileNotFoundError:
-        print(f"cd : {route} No such file or directory found")
+        print(f"cd : {route} No such file or directory")
 
     except NotADirectoryError:
         print(f"cd : {route} No a directory")
