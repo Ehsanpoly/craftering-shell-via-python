@@ -76,11 +76,19 @@ def main():
             continue
 =======
         command = input()
+<<<<<<< HEAD
         if command == "exit":
             break
         print(f"{command}: command not found")
     sys.exit()
 >>>>>>> origin/autofix-d4d6c55a-3fe1-4982-a92f-b7910dbb042a
+=======
+        
+        if command == "exit":
+            sys.exit(0)
+        
+        print(f"{command}: command not found")
+>>>>>>> origin/autofix-1033e50b-13e7-4f34-8923-0ebd39a87659
 
         parts = command.split()
         cmd = parts[0]
