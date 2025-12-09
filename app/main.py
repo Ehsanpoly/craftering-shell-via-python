@@ -3,98 +3,56 @@ import shutil
 import subprocess
 import os
 
+
+# ------------------------------
+# Builtins
+# ------------------------------
+
 def builtin_exit(args):
     sys.exit(0)
 
+
 def builtin_cd(args):
     if not args:
-        print("")
-        return
-    
-    # if not args:
-    #     path = os.path.expanduser("~")
-
+        path = os.path.expanduser("~")
     else:
-        path = args[0]
-        path = os.path.expanduser(path)    
+        path = os.path.expanduser(args[0])
 
-    # route = args[0]
     try:
-        os.chdir(path) 
-
+        os.chdir(path)
     except FileNotFoundError:
         print(f"cd: {args[0]}: No such file or directory")
-
     except NotADirectoryError:
-        print(f"cd: {args[0]}: No a directory")
-
+        print(f"cd: {args[0]}: Not a directory")
     except PermissionError:
-        print(f"cd: {args[0]}: Permission denied")    
+        print(f"cd: {args[0]}: Permission denied")
+
 
 def builtin_pwd(args):
-    if not args:
-        # print(os.getcwd())
-        return os.getcwd() + "\n"    
+    print(os.getcwd())
+
 
 def builtin_echo(args):
-    # print(" ".join(args))
-    return " ".join(args) + "\n"
+    print(" ".join(args))
+
 
 def builtin_type(args):
     if not args:
         print("")
-        return        
+        return
 
     target = args[0]
 
     if target in BUILTINs:
         print(f"{target} is a shell builtin")
         return
-    
+
     path = shutil.which(target)
     if path:
-        print(f"{target} is {path} ")
+        print(f"{target} is {path}")
         return
 
-    print(f"{target}: not found") 
-
-
-def parse_redirection(parts):
-    # if ">" not in parts:
-    #     return parts, None
-    
-    # idx = parts.index(">")
-    # if idx == len(parts) - 1:
-    #     return parts, None
-    
-    # filename = parts[idx + 1]
-    # cmd_parts = parts[:idx]
-    # return cmd_parts, filename
-    """
-    Parses stdout redirection:
-      > file
-      1> file
-    Returns: (clean_parts, out_file)
-    """
-    out_file = None
-    clean_parts = []
-    i = 0
-
-    while i < len(parts):
-        token = parts[i]
-
-        if token == ">" or token == "1>":
-            if i + 1 < len(parts):
-                out_file = parts[i + 1]
-                i +=2
-                continue
-            else:
-                break
-    clean_parts.append(token)
-
-    i +=1
-
-    return clean_parts, out_file        
+    print(f"{target}: not found")
 
 
 BUILTINs = {
@@ -105,57 +63,85 @@ BUILTINs = {
     "cd": builtin_cd,
 }
 
+
+# ------------------------------
+# Redirection parser
+# ------------------------------
+
+def parse_redirection(parts):
+    """
+    Detects:
+       cmd arg1 arg2 > file
+       cmd arg1 1> file
+    Returns: (clean_parts, output_file)
+    """
+    clean = []
+    out_file = None
+
+    i = 0
+    while i < len(parts):
+        tok = parts[i]
+
+        if tok in (">", "1>"):
+            if i + 1 < len(parts):
+                out_file = parts[i + 1]
+                i += 2
+                continue
+            else:
+                break  # invalid syntax → ignore
+
+        clean.append(tok)
+        i += 1
+
+    return clean, out_file
+
+
+# ------------------------------
+# Main shell loop
+# ------------------------------
+
 def main():
     while True:
         sys.stdout.write("$ ")
         command = input().strip()
- 
+
         if not command:
             continue
 
         parts = command.split()
-
         parts, out_file = parse_redirection(parts)
+
         if not parts:
             continue
-        
+
         cmd = parts[0]
         args = parts[1:]
 
+        # Builtins
         if cmd in BUILTINs:
-            if cmd in ("cd", "exit"):
+            if out_file:
+                with open(out_file, "w") as f:
+                    save = sys.stdout
+                    sys.stdout = f
+                    BUILTINs[cmd](args)
+                    sys.stdout = save
+            else:
                 BUILTINs[cmd](args)
-                continue
+            continue
 
-            output = BUILTINs[cmd](args) or ""
-
-            if out_file:
-                with open(out_file, "w") as f:
-                    f.write(output)
-
-            else:
-                print(output, end="")
-            continue                
-
+        # External commands
         path = shutil.which(cmd)
-        
         if path:
-            # print(f"Running external:{path}")
-            result = subprocess.run([cmd] + args, executable = path, 
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE, 
-                                    text=True)
-            output = result.stdout
-
             if out_file:
                 with open(out_file, "w") as f:
-                    f.write(output)
+                    subprocess.run([path] + args, stdout=f)
             else:
-                print(output, end="")
-            continue            
+                subprocess.run([path] + args)
+            continue
 
+        # Unknown
         print(f"{command}: command not found")
 
-    
+
 if __name__ == "__main__":
     main()
