@@ -137,9 +137,9 @@ def main():
         if path:
             if out_file:
                 with open(out_file, "w") as f:
-                    subprocess.run([path] + args, stdout=f)
+                    subprocess.run([cmd] + args, stdout=f)
             else:
-                subprocess.run([path] + args)
+                subprocess.run([cmd] + args)
             continue
 
         # Unknown
