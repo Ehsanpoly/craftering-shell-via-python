@@ -77,25 +77,30 @@ def parse_redirection(parts):
        cmd arg1 1> file
     Returns: (clean_parts, output_file)
     """
-    clean = []
+    stdout_file = None
+    stderr_file = None
+    clean_parts = []
     out_file = None
 
     i = 0
     while i < len(parts):
         tok = parts[i]
 
-        if tok in (">", "1>"):
+        if tok in [">", "1>"]:
             if i + 1 < len(parts):
-                out_file = parts[i + 1]
+                stdout_file = parts[i + 1]
                 i += 2
                 continue
+            if tok == "2>":
+                stderr_file = parts[i + 1]
+            
             else:
                 break  # invalid syntax → ignore
 
-        clean.append(tok)
+        clean_parts.append(tok)
         i += 1
 
-    return clean, out_file
+    return clean_parts, stdout_file, stderr_file
 
 
 # ------------------------------
@@ -112,7 +117,7 @@ def main():
 
         # parts = command.split()
         parts = shlex.split(command)
-        parts, out_file = parse_redirection(parts)
+        parts, stdout_file, stderr_file = parse_redirection(parts)
 
         if not parts:
             continue
@@ -122,28 +127,38 @@ def main():
 
         # Builtins
         if cmd in BUILTINs:
-            if out_file:
-                with open(out_file, "w") as f:
-                    save = sys.stdout
-                    sys.stdout = f
-                    BUILTINs[cmd](args)
-                    sys.stdout = save
-            else:
+            
+            save_stdout = sys.stdout
+            save_stderr = sys.stderr
+            
+            try:
+
+                if stdout_file:
+                    sys.stdout = open(stdout_file, "w")
+
+                if stderr_file:
+                        sys.stderr = open(stderr_file , "w")
+                                
                 BUILTINs[cmd](args)
-            continue
+
+            finally:
+                sys.stdout = save_stdout
+                sys.stderr = save_stderr
+            continue    
+        
 
         # External commands
         path = shutil.which(cmd)
         if path:
-            if out_file:
-                with open(out_file, "w") as f:
-                    subprocess.run([cmd] + args, stdout=f)
-            else:
-                subprocess.run([cmd] + args)
-            continue
+            stdout_target = open(stdout_file, "w") if stdout_file else None
+            stderr_target = open(stderr_file, "w") if stderr_file else None
+
+            subprocess.run([path] + args,
+                            stdout=stdout_target, 
+                            stderr=stderr_target)
 
         # Unknown
-        print(f"{command}: command not found")
+        print(f"{command}: command not found", file=sys.stderr)
 
 
 if __name__ == "__main__":
