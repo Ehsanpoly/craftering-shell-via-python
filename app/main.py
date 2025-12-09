@@ -33,11 +33,12 @@ def builtin_cd(args):
 
 def builtin_pwd(args):
     if not args:
-        print(os.getcwd())
-        return    
+        # print(os.getcwd())
+        return os.getcwd() + "\n"    
 
 def builtin_echo(args):
-    print(" ".join(args))
+    # print(" ".join(args))
+    return " ".join(args) + "\n"
 
 def builtin_type(args):
     if not args:
@@ -55,7 +56,21 @@ def builtin_type(args):
         print(f"{target} is {path} ")
         return
 
-    print(f"{target}: not found")    
+    print(f"{target}: not found") 
+
+
+def parse_redirection(parts):
+    if ">" not in parts:
+        return parts, None
+    
+    idx = parts.index(">")
+    if idx == len(parts) - 1:
+        return parts, None
+    
+    filename = parts[idx + 1]
+    cmd_parts = parts[:idx]
+    return cmd_parts, filename
+
 
 BUILTINs = {
     "exit": builtin_exit,
@@ -74,19 +89,45 @@ def main():
             continue
 
         parts = command.split()
+
+        parts , out_file = parse_redirection(parts)
+        if not parts:
+            continue
+        
         cmd = parts[0]
         args = parts[1:]
 
         if cmd in BUILTINs:
-            BUILTINs[cmd](args)
-            continue
+            if cmd in ("cd", "exit"):
+                BUILTINs[cmd](args)
+                continue
+
+            output = BUILTINs[cmd](args) or ""
+
+            if out_file:
+                with open(out_file, "w") as f:
+                    f.write(output)
+
+            else:
+                print(output, end="")
+            continue                
 
         path = shutil.which(cmd)
         
         if path:
             # print(f"Running external:{path}")
-            subprocess.run([cmd] + args, executable = path)
-            continue
+            result = subprocess.run([cmd] + args, executable = path, 
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE, 
+                                    text=True)
+            output = result.stdout
+
+            if out-file:
+                with open(out_file, "w") as f:
+                    f.write(output)
+            else:
+                print(output, end="")
+            continue            
 
         print(f"{command}: command not found")
 
