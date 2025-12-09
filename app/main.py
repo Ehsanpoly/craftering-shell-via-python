@@ -60,16 +60,41 @@ def builtin_type(args):
 
 
 def parse_redirection(parts):
-    if ">" not in parts:
-        return parts, None
+    # if ">" not in parts:
+    #     return parts, None
     
-    idx = parts.index(">")
-    if idx == len(parts) - 1:
-        return parts, None
+    # idx = parts.index(">")
+    # if idx == len(parts) - 1:
+    #     return parts, None
     
-    filename = parts[idx + 1]
-    cmd_parts = parts[:idx]
-    return cmd_parts, filename
+    # filename = parts[idx + 1]
+    # cmd_parts = parts[:idx]
+    # return cmd_parts, filename
+    """
+    Parses stdout redirection:
+      > file
+      1> file
+    Returns: (clean_parts, out_file)
+    """
+    out_file = None
+    clean_parts = []
+    i = 0
+
+    while i < len(parts):
+        token = parts[i]
+
+        if token == ">" or token == "1>":
+            if i + 1 < len(parts):
+                out_file = parts[i + 1]
+                i +=2
+                continue
+            else:
+                break
+    clean_parts.append(token)
+
+    i +=1
+
+    return clean_parts, out_file        
 
 
 BUILTINs = {
@@ -90,7 +115,7 @@ def main():
 
         parts = command.split()
 
-        parts , out_file = parse_redirection(parts)
+        parts, out_file = parse_redirection(parts)
         if not parts:
             continue
         
