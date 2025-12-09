@@ -2,6 +2,7 @@ import sys
 import shutil
 import subprocess
 import os
+import shlex
 
 
 # ------------------------------
@@ -34,6 +35,7 @@ def builtin_pwd(args):
 
 def builtin_echo(args):
     print(" ".join(args))
+    # return " ".join(args) + "\n"
 
 
 def builtin_type(args):
@@ -108,7 +110,8 @@ def main():
         if not command:
             continue
 
-        parts = command.split()
+        # parts = command.split()
+        parts = shlex.split(command)
         parts, out_file = parse_redirection(parts)
 
         if not parts:
