@@ -122,7 +122,7 @@ def main():
                                     text=True)
             output = result.stdout
 
-            if out-file:
+            if out_file:
                 with open(out_file, "w") as f:
                     f.write(output)
             else:
