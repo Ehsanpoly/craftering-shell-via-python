@@ -150,7 +150,7 @@ def main():
             stdout_target = open(stdout_file, "a" if stdout_append else "w") if stdout_file else None
             stderr_target = open(stderr_file, "w") if stderr_file else None
 
-            subprocess.run([path] + args, stdout=stdout_target, stderr=stderr_target)
+            subprocess.run([cmd] + args, stdout=stdout_target, stderr=stderr_target)
 
             if stdout_target:
                 stdout_target.close()
