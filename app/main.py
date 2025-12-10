@@ -91,12 +91,11 @@ def parse_redirection(parts):
                 stdout_file = parts[i + 1]
                 i += 2
                 continue
-            if tok == "2>":
-                stderr_file = parts[i + 1]
+        if tok == "2>":
+            stderr_file = parts[i + 1]
+            i +=2
+            continue
             
-            else:
-                break  # invalid syntax → ignore
-
         clean_parts.append(tok)
         i += 1
 
@@ -156,7 +155,8 @@ def main():
             subprocess.run([path] + args,
                             stdout=stdout_target, 
                             stderr=stderr_target)
-
+            continue
+        
         # Unknown
         print(f"{command}: command not found", file=sys.stderr)
 
