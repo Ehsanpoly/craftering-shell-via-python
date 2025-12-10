@@ -101,11 +101,14 @@ def parse_redirection(parts):
             continue
 
 
-        if tok == "2>":
+        if tok == "2>" and i + 1 < len(parts):
+
             stderr_file = parts[i + 1]
+            i +=2
+            continue
             
-        else:
-            break  # invalid syntax → ignore
+        # else:
+        #     break  # invalid syntax → ignore
 
         clean_parts.append(tok)
         i += 1
