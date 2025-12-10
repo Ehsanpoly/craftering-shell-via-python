@@ -152,13 +152,13 @@ def main():
             stdout_target = open(stdout_file, "w") if stdout_file else None
             stderr_target = open(stderr_file, "w") if stderr_file else None
 
-            subprocess.run([path] + args,
+            subprocess.run([cmd] + args,
                             stdout=stdout_target, 
                             stderr=stderr_target)
             continue
-        
+
         # Unknown
-        print(f"{command}: command not found", file=sys.stderr)
+        print(f"{cmd}: command not found", file=sys.stderr)
 
 
 if __name__ == "__main__":
