@@ -80,26 +80,52 @@ def parse_redirection(parts):
     stdout_file = None
     stderr_file = None
     clean_parts = []
+    stdout_append = False
     out_file = None
 
     i = 0
     while i < len(parts):
         tok = parts[i]
 
+<<<<<<< HEAD
         if tok in [">", "1>"]:
             if i + 1 < len(parts):
                 stdout_file = parts[i + 1]
                 i += 2
                 continue
         if tok == "2>":
+=======
+        if tok in [">", "1>"] and i + 1 < len(parts):
+            stdout_file = parts[i + 1]
+            stdout_append=False
+            i += 2
+            continue
+
+
+        if tok in [">>", "1>>"] and i + 1 < len(parts):
+            stdout_file = parts[i + 1]
+            stdout_append=True
+            i +=2
+            continue
+
+
+        if tok == "2>" and i + 1 < len(parts):
+
+>>>>>>> f1ca7b3a8a7942268dd808e4a5c9da6ff1921427
             stderr_file = parts[i + 1]
             i +=2
             continue
             
+<<<<<<< HEAD
+=======
+        # else:
+        #     break  # invalid syntax → ignore
+
+>>>>>>> f1ca7b3a8a7942268dd808e4a5c9da6ff1921427
         clean_parts.append(tok)
         i += 1
 
-    return clean_parts, stdout_file, stderr_file
+    return clean_parts, stdout_file, stderr_file, stdout_append
 
 
 # ------------------------------
@@ -109,14 +135,19 @@ def parse_redirection(parts):
 def main():
     while True:
         sys.stdout.write("$ ")
-        command = input().strip()
+        sys.stdout.flush()
+        try:
+            command = input().strip()
+        except EOFError:
+            print()
+            break    
 
         if not command:
             continue
 
         # parts = command.split()
         parts = shlex.split(command)
-        parts, stdout_file, stderr_file = parse_redirection(parts)
+        parts, stdout_file, stderr_file, stdout_append  = parse_redirection(parts)
 
         if not parts:
             continue
@@ -133,29 +164,40 @@ def main():
             try:
 
                 if stdout_file:
-                    sys.stdout = open(stdout_file, "w")
-
+                    sys.stdout = open(stdout_file, "a" if stdout_append else "w")
                 if stderr_file:
-                        sys.stderr = open(stderr_file , "w")
+                    sys.stderr = open(stderr_file , "w")
                                 
                 BUILTINs[cmd](args)
 
             finally:
+                if stdout_file:
+                    sys.stdout.close()
+                if stderr_file:
+                    sys.stderr.close()
                 sys.stdout = save_stdout
-                sys.stderr = save_stderr
+                sys.stderr = save_stderr         
             continue    
         
 
         # External commands
         path = shutil.which(cmd)
         if path:
-            stdout_target = open(stdout_file, "w") if stdout_file else None
+            stdout_target = open(stdout_file, "a" if stdout_append else "w") if stdout_file else None
+
             stderr_target = open(stderr_file, "w") if stderr_file else None
 
             subprocess.run([cmd] + args,
                             stdout=stdout_target, 
                             stderr=stderr_target)
+<<<<<<< HEAD
             continue
+=======
+            if stdout_target:
+                stdout_target.close()
+            if stderr_target:
+                stderr_target.close()    
+>>>>>>> f1ca7b3a8a7942268dd808e4a5c9da6ff1921427
 
         # Unknown
         print(f"{cmd}: command not found", file=sys.stderr)
