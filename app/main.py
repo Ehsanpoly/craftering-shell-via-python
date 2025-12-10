@@ -67,6 +67,7 @@ def parse_redirection(parts):
     stdout_file = None
     stderr_file = None
     stdout_append = False
+    stderr_append = False
     clean_parts = []
 
     i = 0
@@ -90,6 +91,13 @@ def parse_redirection(parts):
         # stderr overwrite
         if tok == "2>" and i + 1 < len(parts):
             stderr_file = parts[i + 1]
+            stderr_append = False
+            i += 2
+            continue
+
+        if tok == "2>>" and i + 1 < len(parts):
+            stderr_file = parts[i + 1]
+            stderr_append = True
             i += 2
             continue
 
@@ -97,7 +105,7 @@ def parse_redirection(parts):
         clean_parts.append(tok)
         i += 1
 
-    return clean_parts, stdout_file, stderr_file, stdout_append
+    return clean_parts, stdout_file, stderr_file, stdout_append, stderr_append
 
 # ------------------------------
 # Main shell loop
@@ -117,7 +125,7 @@ def main():
             continue
 
         parts = shlex.split(command)
-        parts, stdout_file, stderr_file, stdout_append = parse_redirection(parts)
+        parts, stdout_file, stderr_file, stdout_append, stderr_append = parse_redirection(parts)
 
         if not parts:
             continue
@@ -133,7 +141,7 @@ def main():
                 if stdout_file:
                     sys.stdout = open(stdout_file, "a" if stdout_append else "w")
                 if stderr_file:
-                    sys.stderr = open(stderr_file, "w")
+                    sys.stderr = open(stderr_file, "a" if stderr_append else "w")
                 BUILTINs[cmd](args)
             finally:
                 if stdout_file:
@@ -148,7 +156,7 @@ def main():
         path = shutil.which(cmd)
         if path:
             stdout_target = open(stdout_file, "a" if stdout_append else "w") if stdout_file else None
-            stderr_target = open(stderr_file, "w") if stderr_file else None
+            stderr_target = open(stderr_file, "a" if stderr_append else "w") if stderr_file else None
 
             subprocess.run([cmd] + args, stdout=stdout_target, stderr=stderr_target)
 
