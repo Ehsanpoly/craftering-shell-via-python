@@ -80,6 +80,7 @@ def parse_redirection(parts):
     stdout_file = None
     stderr_file = None
     clean_parts = []
+    stdout_append = False
     out_file = None
 
     i = 0
@@ -89,18 +90,29 @@ def parse_redirection(parts):
         if tok in [">", "1>"]:
             if i + 1 < len(parts):
                 stdout_file = parts[i + 1]
+                stdout_append=False
                 i += 2
                 continue
-            if tok == "2>":
-                stderr_file = parts[i + 1]
+
+
+        if tok in [">>", "1>>"]:
+            if i + 1 < len(parts):
+                stdout_file = parts[i + 1]
+                stdout_append=True
+                i +=2
+                continue
+
+
+        if tok == "2>":
+            stderr_file = parts[i + 1]
             
-            else:
-                break  # invalid syntax → ignore
+        else:
+            break  # invalid syntax → ignore
 
         clean_parts.append(tok)
         i += 1
 
-    return clean_parts, stdout_file, stderr_file
+    return clean_parts, stdout_file, stderr_file, stdout_append
 
 
 # ------------------------------
@@ -117,7 +129,7 @@ def main():
 
         # parts = command.split()
         parts = shlex.split(command)
-        parts, stdout_file, stderr_file = parse_redirection(parts)
+        parts, stdout_file, stderr_file, stdout_append = parse_redirection(parts)
 
         if not parts:
             continue
@@ -137,7 +149,7 @@ def main():
                     sys.stdout = open(stdout_file, "w")
 
                 if stderr_file:
-                        sys.stderr = open(stderr_file , "w")
+                    sys.stderr = open(stderr_file , "w")
                                 
                 BUILTINs[cmd](args)
 
@@ -150,7 +162,13 @@ def main():
         # External commands
         path = shutil.which(cmd)
         if path:
-            stdout_target = open(stdout_file, "w") if stdout_file else None
+            # stdout_target = open(stdout_file, "w") if stdout_file else None
+            if stdout_file:
+                mode = "a" if stdout_append else "w"
+                stdout_target = open(stdout_file, mode)
+            else:
+                stdout_target = None
+
             stderr_target = open(stderr_file, "w") if stderr_file else None
 
             subprocess.run([path] + args,
