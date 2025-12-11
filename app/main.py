@@ -67,8 +67,7 @@ def completer(text, state):
         return options[state]
     else:
         return None
-readline.set_completer(completer)
-readline.parse_and_bind("tab: complete")    
+    
 
 def parse_redirection(parts):
     """
@@ -125,6 +124,9 @@ def parse_redirection(parts):
 # ------------------------------
 
 def main():
+    
+    readline.set_completer(completer)
+    readline.parse_and_bind("tab: complete")
     while True:
         sys.stdout.write("$ ")
         sys.stdout.flush()
@@ -145,6 +147,7 @@ def main():
 
         cmd = parts[0]
         args = parts[1:]
+
 
 
         # Builtins
