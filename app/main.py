@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import os
 import shlex
+import readline
 
 # ------------------------------
 # Builtins
@@ -56,6 +57,18 @@ BUILTINs = {
 # ------------------------------
 # Redirection parser
 # ------------------------------
+
+COMMAND = ["echo", "exit"]
+
+def completer(text, state):
+
+    options = [cmd for cmd in COMMAND if cmd.startswith(text)]
+    if state < len(options):
+        return options[state]
+    else:
+        return None
+readline.set_completer(completer)
+readline.parse_and_bind("tab: complete")    
 
 def parse_redirection(parts):
     """
@@ -132,6 +145,7 @@ def main():
 
         cmd = parts[0]
         args = parts[1:]
+
 
         # Builtins
         if cmd in BUILTINs:
