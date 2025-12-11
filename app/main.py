@@ -58,7 +58,8 @@ BUILTINs = {
 # Redirection parser
 # ------------------------------
 
-COMMAND = ["echo", "exit"]
+# COMMAND = ["echo", "exit"]
+COMMAND = list(BUILTINs.keys())
 
 def completer(text, state):
 
