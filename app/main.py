@@ -63,12 +63,30 @@ COMMAND = list(BUILTINs.keys())
 
 def completer(text, state):
 
+    # Add builtins
     options = [cmd for cmd in COMMAND if cmd.startswith(text)]
+
+    # Add executables
+    for exe in get_executables():
+        if exe.startswith(text):
+            options.append(exe)
+    
     if state < len(options):
         return options[state] + " "
     else:
         return None
     
+def get_executables():
+    executables = set()
+    for dir_path in os.environ.get("PATH", "").split(os.pathsep):
+        if not os.path.isdir(dir_path):
+            continue
+        for file in os.listdir(dir_path):
+            full_path = os.path.join(dir_path, file)
+            if os.access(full_path, os.X_OK) and not os.path.isdir(full_path):
+                executables.add(file)
+
+    return list(executables)
 
 def parse_redirection(parts):
     """
