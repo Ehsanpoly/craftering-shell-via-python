@@ -83,24 +83,24 @@ def completer(text, state):
     if not cached_matches:
         return None
     
-    if len(cached_matches) > 1 and tab_press_count == 0 :
+    if len(cached_matches) > 1 and tab_press_count == 0:
         sys.stdout.write("\x07")
         sys.stdout.flush()
         tab_press_count = 1
     
     if state < len(cached_matches):
-        return cached_matches[state]
+        return cached_matches[state] + " "
     
     return None
     
 
 
-def display_matches_hook(cached_matches):
-    # Called automatically by readline on second TAB
-    sys.stdout.write("\n")
-    sys.stdout.write("  ".join(sorted(cached_matches)))
-    sys.stdout.write("\n$ " + readline.get_line_buffer())
-    sys.stdout.flush()
+# def display_matches_hook(substitution, matches, longest_match_length):
+#     # Called automatically by readline on second TAB
+#     sys.stdout.write("\n")
+#     sys.stdout.write("  ".join(sorted(matches)))
+#     sys.stdout.write("\n$ " + readline.get_line_buffer())
+#     sys.stdout.flush()
 
 
 def list_executables_in_path():
@@ -187,7 +187,7 @@ def parse_redirection(parts):
 def main():
     
     readline.set_completer(completer)
-    readline.set_completion_display_matches_hook(display_matches_hook)
+    # readline.set_completion_display_matches_hook(display_matches_hook)
     readline.parse_and_bind("tab: complete")
     while True:
         sys.stdout.write("$ ")
