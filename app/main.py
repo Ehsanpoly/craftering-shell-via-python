@@ -78,7 +78,7 @@ def completer(text, state):
     if not cached_matches:
         list_execs = list_executables_in_path()
         list_execs.update(BUILTINS_LITS)
-        cached_matches = sorted([cmd for cmd in list_execs if cmd.startswith(text)])
+        cached_matches = sorted(cmd for cmd in list_execs if cmd.startswith(text))
 
     if len(cached_matches) == 0:
         return None
@@ -91,9 +91,10 @@ def completer(text, state):
         return "\x07"
     
     if tab_press_count == 1:
-        print()
-        print("  ".join(cached_matches))
-        sys.stdout.write("$ " + text)
+        
+        sys.stdout.write("\n")
+        sys.stdout.write("  ".join(cached_matches))
+        sys.stdout.write("\n$ " + text)
         sys.stdout.flush()
         tab_press_count = 0
         return None
