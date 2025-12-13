@@ -94,16 +94,26 @@ def completer(text, state):
     if state < len(cached_matches):
         return cached_matches[state] + " "
     
+    if tab_press_count == 1 and state == 0:
+        sys.stdout.write("\n")
+        sys.stdout.write("  ".join(sorted(matches)))
+        sys.stdout.write("\n$ " + readline.get_line_buffer())
+        sys.stdout.flush()
+        tab_press_count = 0
+ 
+        return None
+
+
     return None
     
 
 
-def display_matches_hook(substitution, matches, longest_match_length):
-    # Called automatically by readline on second TAB
-    sys.stdout.write("\n")
-    sys.stdout.write("  ".join(sorted(matches)))
-    sys.stdout.write("\n$ " + readline.get_line_buffer())
-    sys.stdout.flush()
+# def display_matches_hook(substitution, matches, longest_match_length):
+#     # Called automatically by readline on second TAB
+#     sys.stdout.write("\n")
+#     sys.stdout.write("  ".join(sorted(matches)))
+#     sys.stdout.write("\n$ " + readline.get_line_buffer())
+#     sys.stdout.flush()
 
 
 def list_executables_in_path():
@@ -190,7 +200,7 @@ def parse_redirection(parts):
 def main():
     
     readline.set_completer(completer)
-    readline.set_completion_display_matches_hook(display_matches_hook)
+    # readline.set_completion_display_matches_hook(display_matches_hook)
     readline.parse_and_bind("tab: complete")
     while True:
         sys.stdout.write("$ ")
