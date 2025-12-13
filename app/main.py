@@ -86,21 +86,23 @@ def completer(text, state):
     if len(cached_matches) == 1:
         return cached_matches[0] + " "
     
+    # if state < len(cached_matches):
+    #     return cached_matches[state] + " "
+    
     if  tab_press_count == 0:
         sys.stdout.write("\x07")
         sys.stdout.flush()
         tab_press_count = 1
+        return None
     
-    if state < len(cached_matches):
-        return cached_matches[state] + " "
+
     
-    if tab_press_count == 1 and state == 0:
+    if tab_press_count == 1:
         sys.stdout.write("\n")
-        sys.stdout.write("  ".join(sorted(matches)))
+        sys.stdout.write("  ".join(sorted(cached_matches)))
         sys.stdout.write("\n$ " + readline.get_line_buffer())
         sys.stdout.flush()
         tab_press_count = 0
- 
         return None
 
 
