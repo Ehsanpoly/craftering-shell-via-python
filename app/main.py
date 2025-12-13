@@ -99,8 +99,8 @@ def completer(text, state):
     
     if tab_press_count == 1:
         sys.stdout.write("\n")
-        sys.stdout.write("  ".join(sorted(cached_matches)))
-        sys.stdout.write("\n$ " + readline.get_line_buffer())
+        sys.stdout.write("  ".join((cached_matches)))
+        sys.stdout.write("\n$ " + text)
         sys.stdout.flush()
         tab_press_count = 0
         return None
