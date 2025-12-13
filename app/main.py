@@ -66,48 +66,82 @@ cached_matches = []
 # COMMAND = ["echo", "exit"]
 COMMAND = list(BUILTINs.keys())
 
+# def completer(text, state):
+    
+#     global last_perfix, tab_press_count, cached_matches
+
+#     if text != last_perfix:
+#         tab_press_count = 0
+#         cached_matches = []
+#         last_perfix = text
+
+#     if not cached_matches:
+#         list_execs = list_executables_in_path()
+#         list_execs.update(BUILTINS_LITS)
+#         cached_matches = sorted(cmd for cmd in list_execs if cmd.startswith(text))
+
+#     if not cached_matches:
+#         return None
+    
+#     if len(cached_matches) == 1:
+#         return cached_matches[0] + " "
+    
+#     # if state < len(cached_matches):
+#     #     return cached_matches[state] + " "
+    
+#     if  tab_press_count == 0:
+#         sys.stdout.write("\x07")
+#         sys.stdout.flush()
+#         tab_press_count = 1
+#         return None
+    
+
+    
+#     if tab_press_count == 1:
+#         sys.stdout.write("\n")
+#         sys.stdout.write("  ".join((cached_matches)))
+#         sys.stdout.write("\n$ " + text)
+#         sys.stdout.flush()
+#         tab_press_count = 0
+#         return None
+
+
+#     return None
+    
+
 def completer(text, state):
-    
-    global last_perfix, tab_press_count, cached_matches
+    global last_perfix, cached_matches
 
+    # Reset cache if prefix changes
     if text != last_perfix:
-        tab_press_count = 0
-        cached_matches = []
         last_perfix = text
+        cached_matches = []
+
+    # Compute matches once
+    if not cached_matches:
+        execs = set(list_executables_in_path())
+        execs.update(BUILTINS_LITS)
+        cached_matches = sorted(cmd for cmd in execs if cmd.startswith(text))
 
     if not cached_matches:
-        list_execs = list_executables_in_path()
-        list_execs.update(BUILTINS_LITS)
-        cached_matches = sorted(cmd for cmd in list_execs if cmd.startswith(text))
-
-    if not cached_matches:
-        return None
-    
-    if len(cached_matches) == 1:
-        return cached_matches[0] + " "
-    
-    # if state < len(cached_matches):
-    #     return cached_matches[state] + " "
-    
-    if  tab_press_count == 0:
-        sys.stdout.write("\x07")
-        sys.stdout.flush()
-        tab_press_count = 1
-        return None
-    
-
-    
-    if tab_press_count == 1:
-        sys.stdout.write("\n")
-        sys.stdout.write("  ".join((cached_matches)))
-        sys.stdout.write("\n$ " + text)
-        sys.stdout.flush()
-        tab_press_count = 0
         return None
 
+    # Multiple matches → ring bell on first TAB
+    if len(cached_matches) > 1 and state == 0:
+        return "\x07"
+
+    # Let readline handle cycling / second TAB
+    if state < len(cached_matches):
+        return cached_matches[state] + " "
 
     return None
-    
+   
+def display_matches_hook(substitution, matches, longest_match_length):
+    sys.stdout.write("\n")
+    sys.stdout.write("  ".join(sorted(matches)))
+    sys.stdout.write("\n$ " + readline.get_line_buffer())
+    sys.stdout.flush()
+
 
 
 # def display_matches_hook(substitution, matches, longest_match_length):
@@ -202,7 +236,7 @@ def parse_redirection(parts):
 def main():
     
     readline.set_completer(completer)
-    # readline.set_completion_display_matches_hook(display_matches_hook)
+    readline.set_completion_display_matches_hook(display_matches_hook)
     readline.parse_and_bind("tab: complete")
     while True:
         sys.stdout.write("$ ")
