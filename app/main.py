@@ -89,20 +89,18 @@ def completer(text, state):
     if tab_press_count == 0:
         tab_press_count += 1
         return "\x07"
-    
-    if tab_press_count == 1:
-        
-        sys.stdout.write("\n")
-        sys.stdout.write("  ".join(cached_matches))
-        sys.stdout.write("\n")
-        sys.stdout.write("$ " + text)
-        sys.stdout.flush()
-        tab_press_count = 0
-        return None
-    
+
+    tab_press_count = 0
     return None
+    
 
 
+def display_matches_hook(substitution, cached_matches, longest_match_length):
+    # Called automatically by readline on second TAB
+    sys.stdout.write("\n")
+    sys.stdout.write("  ".join(sorted(cached_matches)))
+    sys.stdout.write("\n$ " + readline.get_line_buffer())
+    sys.stdout.flush()
 
     # # Add builtins
     # options = [cmd for cmd in COMMAND if cmd.startswith(text)]
@@ -203,6 +201,7 @@ def parse_redirection(parts):
 def main():
     
     readline.set_completer(completer)
+    readline.set_completion_display_matches_hook(display_matches_hook)
     readline.parse_and_bind("tab: complete")
     while True:
         sys.stdout.write("$ ")
