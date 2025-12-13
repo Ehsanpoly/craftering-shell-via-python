@@ -53,6 +53,11 @@ BUILTINs = {
     "pwd": builtin_pwd,
     "cd": builtin_cd,
 }
+BUILTINS_LITS = ["echo","exit","type","pwd","cd"]
+
+last_perfix = ""
+tab_press_count = 0
+cached_matches = []
 
 # ------------------------------
 # Redirection parser
@@ -62,20 +67,71 @@ BUILTINs = {
 COMMAND = list(BUILTINs.keys())
 
 def completer(text, state):
-
-    # Add builtins
-    options = [cmd for cmd in COMMAND if cmd.startswith(text)]
-
-    # Add executables
-    for exe in get_executables():
-        if exe.startswith(text):
-            options.append(exe)
     
-    if state < len(options):
-        return options[state] + " "
-    else:
+    global last_perfix, tab_press_count, cached_matches
+
+    if text != last_perfix:
+        tab_press_count = 0
+        cached_matches = []
+        last_perfix = text
+
+    if not cached_matches:
+        list_execs = list_executables_in_path()
+        list_execs.update(BUILTINS_LITS)
+        cached_matches = sorted([cmd for cmd in list_execs if cmd.startswith(text)])
+
+    if len(cached_matches) == 0:
         return None
     
+    if len(cached_matches) == 1:
+        return cached_matches[0]
+    
+    if tab_press_count == 0:
+        tab_press_count += 1
+        return "\x07"
+    
+    if tab_press_count == 1:
+        print()
+        print("  ".join(cached_matches))
+        sys.stdout.write("$ "+text)
+        sys.stdout.flush()
+        tab_press_count = 0
+        return None
+    
+    return None
+
+
+
+    # # Add builtins
+    # options = [cmd for cmd in COMMAND if cmd.startswith(text)]
+
+    # # Add executables
+    # for exe in get_executables():
+    #     if exe.startswith(text):
+    #         options.append(exe)
+    
+    # if state < len(options):
+    #     return options[state] + " "
+    # else:
+    #     return None
+    
+
+def list_executables_in_path():
+    executables = set()
+    for dir_path in os.environ.get("PATH", "").split(os.pathsep):
+        if not os.path.isdir(dir_path):
+            continue
+        try:
+            for file in os.listdir(dir_path):
+                full_path = os.path.join(dir_path, file)
+                if os.access(full_path, os.X_OK) and os.path.isfile(full_path):
+                    executables.add(file)
+        except PermissionError:
+            continue
+    return list(executables)    
+    
+
+
 def get_executables():
     executables = set()
     for dir_path in os.environ.get("PATH", "").split(os.pathsep):
@@ -87,6 +143,7 @@ def get_executables():
                 executables.add(file)
 
     return list(executables)
+
 
 def parse_redirection(parts):
     """
