@@ -94,7 +94,8 @@ def completer(text, state):
         
         sys.stdout.write("\n")
         sys.stdout.write("  ".join(cached_matches))
-        sys.stdout.write("\n$ " + text)
+        sys.stdout.write("\n")
+        sys.stdout.write("$ " + text)
         sys.stdout.flush()
         tab_press_count = 0
         return None
