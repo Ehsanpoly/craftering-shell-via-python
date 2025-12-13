@@ -83,7 +83,7 @@ def completer(text, state):
     if not cached_matches:
         return None
     
-    if len(cached_matches) == 1:
+    if len(cached_matches) > 1 and tab_press_count == 0 :
         sys.stdout.write("\x07")
         sys.stdout.flush()
         tab_press_count = 1
