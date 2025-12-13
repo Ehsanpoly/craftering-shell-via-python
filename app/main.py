@@ -93,7 +93,7 @@ def completer(text, state):
     if tab_press_count == 1:
         print()
         print("  ".join(cached_matches))
-        sys.stdout.write("$ "+text)
+        sys.stdout.write("$ " + text)
         sys.stdout.flush()
         tab_press_count = 0
         return None
@@ -116,6 +116,7 @@ def completer(text, state):
     #     return None
     
 
+
 def list_executables_in_path():
     executables = set()
     for dir_path in os.environ.get("PATH", "").split(os.pathsep):
@@ -129,8 +130,6 @@ def list_executables_in_path():
         except PermissionError:
             continue
     return list(executables)    
-    
-
 
 def get_executables():
     executables = set()
