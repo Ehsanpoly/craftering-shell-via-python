@@ -80,41 +80,27 @@ def completer(text, state):
         list_execs.update(BUILTINS_LITS)
         cached_matches = sorted(cmd for cmd in list_execs if cmd.startswith(text))
 
-    if len(cached_matches) == 0:
+    if not cached_matches:
         return None
     
     if len(cached_matches) == 1:
-        return cached_matches[0] + " "
+        sys.stdout.write("\x07")
+        sys.stdout.flush()
+        tab_press_count = 1
     
-    if tab_press_count == 0:
-        tab_press_count += 1
-        return "\x07"
-
-    tab_press_count = 0
+    if state < len(cached_matches):
+        return cached_matches[state]
+    
     return None
     
 
 
-def display_matches_hook(substitution, cached_matches, longest_match_length):
+def display_matches_hook(substitution, matches, longest_match_length):
     # Called automatically by readline on second TAB
     sys.stdout.write("\n")
-    sys.stdout.write("  ".join(sorted(cached_matches)))
+    sys.stdout.write("  ".join(sorted(matches)))
     sys.stdout.write("\n$ " + readline.get_line_buffer())
     sys.stdout.flush()
-
-    # # Add builtins
-    # options = [cmd for cmd in COMMAND if cmd.startswith(text)]
-
-    # # Add executables
-    # for exe in get_executables():
-    #     if exe.startswith(text):
-    #         options.append(exe)
-    
-    # if state < len(options):
-    #     return options[state] + " "
-    # else:
-    #     return None
-    
 
 
 def list_executables_in_path():
