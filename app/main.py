@@ -84,7 +84,7 @@ def completer(text, state):
         return None
     
     if len(cached_matches) == 1:
-        return cached_matches[0]
+        return cached_matches[0] + " "
     
     if tab_press_count == 0:
         tab_press_count += 1
