@@ -95,10 +95,10 @@ def completer(text, state):
     
 
 
-def display_matches_hook(substitution, matches, longest_match_length):
+def display_matches_hook(cached_matches):
     # Called automatically by readline on second TAB
     sys.stdout.write("\n")
-    sys.stdout.write("  ".join(sorted(matches)))
+    sys.stdout.write("  ".join(sorted(cached_matches)))
     sys.stdout.write("\n$ " + readline.get_line_buffer())
     sys.stdout.flush()
 
