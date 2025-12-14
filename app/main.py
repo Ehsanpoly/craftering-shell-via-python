@@ -155,8 +155,9 @@ def completer(text, state):
 
     # ✅ Single match → complete immediately
     if len(cached_matches) == 1:
-        return cached_matches[0] + " "
-
+        if state == 0:
+            return cached_matches[0] + " "
+        return None
     # 🔔 First TAB with multiple matches → bell only
     if tab_press_count == 0:
         sys.stdout.write("\x07")
