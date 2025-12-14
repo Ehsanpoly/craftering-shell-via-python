@@ -109,32 +109,67 @@ COMMAND = list(BUILTINs.keys())
 #     return None
     
 
+# def completer(text, state):
+#     global last_perfix, cached_matches
+
+#     # Reset cache if prefix changes
+#     if text != last_perfix:
+#         last_perfix = text
+#         cached_matches = []
+
+#     # Compute matches once
+#     if not cached_matches:
+#         execs = set(list_executables_in_path())
+#         execs.update(BUILTINS_LITS)
+#         cached_matches = sorted(cmd for cmd in execs if cmd.startswith(text))
+
+#     if not cached_matches:
+#         return None
+
+#     # Multiple matches → ring bell on first TAB
+#     if len(cached_matches) > 1 and state == 0:
+#         return "\x07"
+
+#     # Let readline handle cycling / second TAB
+#     if state < len(cached_matches):
+#         return cached_matches[state] + " "
+
+#     return None
+
+
 def completer(text, state):
-    global last_perfix, cached_matches
+    global last_perfix, tab_press_count, cached_matches
 
-    # Reset cache if prefix changes
     if text != last_perfix:
-        last_perfix = text
+        tab_press_count = 0
         cached_matches = []
+        last_perfix = text
 
-    # Compute matches once
     if not cached_matches:
-        execs = set(list_executables_in_path())
-        execs.update(BUILTINS_LITS)
-        cached_matches = sorted(cmd for cmd in execs if cmd.startswith(text))
+        list_execs = set(list_executables_in_path())
+        list_execs.update(BUILTINS_LITS)
+        cached_matches = sorted(cmd for cmd in list_execs if cmd.startswith(text))
 
     if not cached_matches:
         return None
 
-    # Multiple matches → ring bell on first TAB
-    if len(cached_matches) > 1 and state == 0:
-        return "\x07"
+    # ✅ Single match → complete immediately
+    if len(cached_matches) == 1:
+        return cached_matches[0] + " "
 
-    # Let readline handle cycling / second TAB
+    # 🔔 First TAB with multiple matches → bell only
+    if tab_press_count == 0:
+        sys.stdout.write("\x07")
+        sys.stdout.flush()
+        tab_press_count = 1
+        return None
+
+    # ✅ Multiple matches → return RAW candidates (NO SPACE)
     if state < len(cached_matches):
-        return cached_matches[state] + " "
+        return cached_matches[state]
 
     return None
+
    
 def display_matches_hook(substitution, matches, longest_match_length):
     sys.stdout.write("\n")
