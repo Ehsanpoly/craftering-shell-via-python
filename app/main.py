@@ -784,7 +784,10 @@ def completer(text, state):
     if state == 0:
         sys.stdout.write("\x07")
         sys.stdout.flush()
-        return None
+        # return None
+    
+    if state < len(cached_matches):
+        return cached_matches
 
     # Second TAB → allow readline to call display_matches_hook
     return None
