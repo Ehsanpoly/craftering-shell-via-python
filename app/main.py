@@ -796,15 +796,56 @@ def longest_common_prefix(strings):
 
 
 
-def completer(text, state):
-    global last_prefix, cached_matches
+# def completer(text, state):
+#     global last_prefix, cached_matches
 
-    # Reset cache if prefix changed
+#     # Reset cache if prefix changed
+#     if text != last_prefix:
+#         last_prefix = text
+#         cached_matches = []
+
+#     # Build matches once
+#     if not cached_matches:
+#         execs = set(list_executables_in_path())
+#         execs.update(BUILTINS_LITS)
+#         cached_matches = sorted(cmd for cmd in execs if cmd.startswith(text))
+
+#     if not cached_matches:
+#         return None
+
+#     # ✅ Single match → complete + space
+#     if len(cached_matches) == 1:
+#         return cached_matches[0] + " " if state == 0 else None
+
+#     # ✅ Longest Common Prefix
+#     lcp = longest_common_prefix(cached_matches)
+#     if len(lcp) > len(text):
+#         return lcp if state == 0 else None
+
+#     # 🔔 No progress possible
+#     if state == 0:
+#         sys.stdout.write("\x07")
+#         sys.stdout.flush()
+#         return None
+
+#     # ✅ SECOND TAB → enumerate matches
+#     index = state - 1
+#     if index < len(cached_matches):
+#         return cached_matches[index]
+
+#     return None
+
+
+def completer(text, state):
+    global last_prefix, cached_matches, tab_press_count
+
+    # Reset TAB state if text changes
     if text != last_prefix:
         last_prefix = text
+        tab_press_count = 0
         cached_matches = []
 
-    # Build matches once
+    # Build matches ONCE
     if not cached_matches:
         execs = set(list_executables_in_path())
         execs.update(BUILTINS_LITS)
@@ -813,28 +854,33 @@ def completer(text, state):
     if not cached_matches:
         return None
 
-    # ✅ Single match → complete + space
+    # -----------------------------
+    # SINGLE MATCH → complete fully
+    # -----------------------------
     if len(cached_matches) == 1:
-        return cached_matches[0] + " " if state == 0 else None
-
-    # ✅ Longest Common Prefix
-    lcp = longest_common_prefix(cached_matches)
-    if len(lcp) > len(text):
-        return lcp if state == 0 else None
-
-    # 🔔 No progress possible
-    if state == 0:
-        sys.stdout.write("\x07")
-        sys.stdout.flush()
+        if state == 0:
+            return cached_matches[0] + " "
         return None
 
-    # ✅ SECOND TAB → enumerate matches
-    index = state - 1
-    if index < len(cached_matches):
-        return cached_matches[index]
+    # -----------------------------
+    # MULTIPLE MATCHES
+    # -----------------------------
+    if state == 0:
+        # FIRST TAB → bell only
+        if tab_press_count == 0:
+            sys.stdout.write("\a")
+            sys.stdout.flush()
+            tab_press_count = 1
+            return None
 
+        # SECOND TAB → print matches manually
+        sys.stdout.write("\n" + "  ".join(cached_matches))
+        sys.stdout.write("\n$ " + text)
+        sys.stdout.flush()
+        return text
+
+    # readline must get None after manual printing
     return None
-
 
 
 # ------------------------------
