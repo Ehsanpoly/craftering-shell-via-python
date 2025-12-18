@@ -764,7 +764,7 @@ def completer(text, state):
     if not cached_matches:
         execs = set(list_executables_in_path())
         execs.update(BUILTINS_LITS)
-        cached_matches = sorted(cmd for cmd in execs if cmd.startswith(text))
+        cached_matches = sorted([cmd for cmd in execs if cmd.startswith(text)])
 
     if not cached_matches:
         return None
