@@ -836,6 +836,53 @@ def longest_common_prefix(strings):
 #     return None
 
 
+# def completer(text, state):
+#     global last_prefix, cached_matches, tab_press_count
+
+#     # Reset TAB state if text changes
+#     if text != last_prefix:
+#         last_prefix = text
+#         tab_press_count = 0
+#         cached_matches = []
+
+#     # Build matches ONCE
+#     if not cached_matches:
+#         execs = set(list_executables_in_path())
+#         execs.update(BUILTINS_LITS)
+#         cached_matches = sorted(cmd for cmd in execs if cmd.startswith(text))
+
+#     if not cached_matches:
+#         return None
+
+#     # -----------------------------
+#     # SINGLE MATCH → complete fully
+#     # -----------------------------
+#     if len(cached_matches) == 1:
+#         if state == 0:
+#             return cached_matches[0] + " "
+#         return None
+
+#     # -----------------------------
+#     # MULTIPLE MATCHES
+#     # -----------------------------
+#     if state == 0:
+#         # FIRST TAB → bell only
+#         if tab_press_count == 0:
+#             sys.stdout.write("\a")
+#             sys.stdout.flush()
+#             tab_press_count = 1
+#             return None
+
+#         # SECOND TAB → print matches manually
+#         sys.stdout.write("\n" + "  ".join(cached_matches))
+#         sys.stdout.write("\n$ " + text)
+#         sys.stdout.flush()
+#         return text
+
+#     # readline must get None after manual printing
+#     return None
+
+
 def completer(text, state):
     global last_prefix, cached_matches, tab_press_count
 
@@ -855,7 +902,7 @@ def completer(text, state):
         return None
 
     # -----------------------------
-    # SINGLE MATCH → complete fully
+    # SINGLE MATCH
     # -----------------------------
     if len(cached_matches) == 1:
         if state == 0:
@@ -866,21 +913,29 @@ def completer(text, state):
     # MULTIPLE MATCHES
     # -----------------------------
     if state == 0:
-        # FIRST TAB → bell only
+        # Compute Longest Common Prefix (LCP)
+        lcp = os.path.commonprefix(cached_matches)
+
+        # CASE 1: LCP extends current text → complete
+        if len(lcp) > len(text):
+            tab_press_count = 0
+            return lcp
+
+        # CASE 2: LCP == text → bell on first TAB
         if tab_press_count == 0:
             sys.stdout.write("\a")
             sys.stdout.flush()
             tab_press_count = 1
             return None
 
-        # SECOND TAB → print matches manually
+        # CASE 3: second TAB → show all matches
         sys.stdout.write("\n" + "  ".join(cached_matches))
         sys.stdout.write("\n$ " + text)
         sys.stdout.flush()
         return text
 
-    # readline must get None after manual printing
     return None
+
 
 
 # ------------------------------
