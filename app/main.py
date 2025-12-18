@@ -752,15 +752,59 @@ def longest_common_prefix(strings):
 
 
 
+# def completer(text, state):
+#     global last_prefix, cached_matches
+
+#     # Reset cache when text changes
+#     if text != last_prefix:
+#         last_prefix = text
+#         cached_matches = []
+
+#     # Compute matches once
+#     if not cached_matches:
+#         execs = set(list_executables_in_path())
+#         execs.update(BUILTINS_LITS)
+#         cached_matches = sorted(cmd for cmd in execs if cmd.startswith(text))
+
+#     if not cached_matches:
+#         return None
+
+#     # ✅ Single match → complete fully
+#     if len(cached_matches) == 1:
+#         return cached_matches[0] + " " if state == 0 else None
+
+#     # ✅ Multiple matches → attempt LCP
+#     lcp = longest_common_prefix(cached_matches)
+
+#     if len(lcp) > len(text):
+#         return lcp if state == 0 else None
+
+#     # 🔔 No LCP progress:
+#     # First TAB → ring bell
+#     if state == 0:
+#         sys.stdout.write("\x07")
+#         sys.stdout.flush()
+#         return None
+    
+#     index = state - 1
+#     if index < len(cached_matches):
+#         return cached_matches[index]
+
+#     # Second TAB → allow readline to call display_matches_hook
+#     return None
+
+
+
+
 def completer(text, state):
     global last_prefix, cached_matches
 
-    # Reset cache when text changes
+    # Reset cache if prefix changed
     if text != last_prefix:
         last_prefix = text
         cached_matches = []
 
-    # Compute matches once
+    # Build matches once
     if not cached_matches:
         execs = set(list_executables_in_path())
         execs.update(BUILTINS_LITS)
@@ -769,32 +813,27 @@ def completer(text, state):
     if not cached_matches:
         return None
 
-    # ✅ Single match → complete fully
+    # ✅ Single match → complete + space
     if len(cached_matches) == 1:
         return cached_matches[0] + " " if state == 0 else None
 
-    # ✅ Multiple matches → attempt LCP
+    # ✅ Longest Common Prefix
     lcp = longest_common_prefix(cached_matches)
-
     if len(lcp) > len(text):
         return lcp if state == 0 else None
 
-    # 🔔 No LCP progress:
-    # First TAB → ring bell
+    # 🔔 No progress possible
     if state == 0:
         sys.stdout.write("\x07")
         sys.stdout.flush()
         return None
-    
+
+    # ✅ SECOND TAB → enumerate matches
     index = state - 1
     if index < len(cached_matches):
         return cached_matches[index]
 
-    # Second TAB → allow readline to call display_matches_hook
     return None
-
-
-
 
 
 
