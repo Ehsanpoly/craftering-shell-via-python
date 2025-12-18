@@ -764,7 +764,7 @@ def completer(text, state):
     if not cached_matches:
         execs = set(list_executables_in_path())
         execs.update(BUILTINS_LITS)
-        cached_matches = sorted([cmd for cmd in execs if cmd.startswith(text)])
+        cached_matches = sorted(cmd for cmd in execs if cmd.startswith(text))
 
     if not cached_matches:
         return None
@@ -784,10 +784,11 @@ def completer(text, state):
     if state == 0:
         sys.stdout.write("\x07")
         sys.stdout.flush()
-        # return None
+        return None
     
-    if state < len(cached_matches):
-        return cached_matches
+    index = state - 1
+    if index < len(cached_matches):
+        return cached_matches[index]
 
     # Second TAB → allow readline to call display_matches_hook
     return None
